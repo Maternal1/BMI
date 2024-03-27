@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>BMI 計算機</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 150px;
+            background-color: #F5DEC7;
+            font-size: 28px;
+        }
+
+        #bmiCalculator {
+            display: flex;
+            flex-direction: row;
+        }
+
+        #weightImage {
+            width: 800px;
+            height: auto;
+            margin-left: 20px;
+        }
+
+        #fhirForm input[type="text"],
+        #fhirForm input[type="date"],
+        #fhirForm button {
+            font-size: 28px;
+            /* 調整輸入框和按鈕字體大小 */
+        }
+
+        input[type="number"],
+        input[type="radio"],
+        button[type="button"] {
+            font-size: 20px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button[type="button"] {
+            width: 100%;
+            /* Set button width to 100% */
+            background-color: #EFCFAE;
+            /* Green background color */
+            color: black;
+            /* White text color */
+        }
+    </style>
+    <meta http-equiv="Permissions-Policy" content="interest-cohort=()">
+</head>
+
+<body>
+    <form id="bmiCalculator">
+        <div id="calculatorSection">
+            <h2>BMI 計算機</h2>
+            <label for="height">身高（公分）：</label>
+            <input type="number" id="height" required><br><br>
+
+            <label for="weight">體重（公斤）：</label>
+            <input type="number" id="weight" required><br><br>
+
+            <label for="twinType">胞胎類型：</label><br>
+            <input type="radio" id="single" name="twinType" value="single" checked>
+            <label for="single">單胞胎</label>
+            <input type="radio" id="twin" name="twinType" value="twin">
+            <label for="twin">雙胞胎</label><br><br>
+
+            <button type="button" onclick="calculateBMI()">計算</button>
+
+            <h2 id="result"></h2>
+        </div>
+        <img id="weightImage" src="https://doctorfit.com.tw/wp-content/uploads/2022/11/148300530_116603413721376_1480967099243962380_n-2.png.webp">
+
+    </form>
+
+    <script>
+        let patientId = "";
+        function receiveValueFromFlutter(value) {
+            patientId = value;
+        }
+        function calculateBMI() {
+            const height = parseFloat(document.getElementById('height').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            const twinType = document.querySelector('input[name="twinType"]:checked').value;
+
+            const h = height / 100;
+            const bmi = weight / (h * h);
+
+            if (isNaN(height) || isNaN(weight) || height <= 0 || weight <= 0) {
+                document.getElementById('result').innerText = '請輸入有效的身高和體重。';
+                return;
+            }
+
+            const category = determineBMICategory(bmi, twinType);
+            const weightGainRecommendation = determineWeightGainRecommendation(bmi, twinType);
+
+            document.getElementById('result').innerText = `BMI 為 ${bmi.toFixed(2)}\n屬於 ${category}。\n建議增重量：${weightGainRecommendation}。`;
+        }
+
+        function determineBMICategory(bmi, twinType) {
+            if (bmi < 18.5) return '過輕';
+            if (bmi < 24.9) return '正常';
+            if (bmi < 29.9) return '過重';
+            return '肥胖';
+        }
+
+        function determineWeightGainRecommendation(bmi, twinType) {
+            if (twinType === 'single') {
+                if (bmi < 18.5) return '12.5~18公斤';
+                if (bmi < 24.9) return '11.5~16公斤';
+                if (bmi < 29.9) return '7~11.5公斤';
+                return '5~9公斤';
+            } else {
+                if (bmi < 24.9) return '16.8~24.5公斤';
+                if (bmi < 29.9) return '14.1~22.7公斤';
+                return '11.4~19.1公斤';
+            }
+        }
+
+    </script>
+</body>
+
+</html>
